@@ -27,14 +27,14 @@ class SolverNN:
 
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
-        self.n_layers = len(n_nodes)
+        self.n_layers = 1 if isinstance(n_nodes, int) else len(n_nodes)
         self.n_nodes = [n_nodes] if isinstance(n_nodes, int) else n_nodes
 
         # Randomly initialise weights
-        self.weights = [np.random.rand(n_inputs, n_nodes[0])]
-        for i in range(1, len(n_nodes)):
-            self.weights.append( np.random.rand(n_nodes[i-1], n_nodes[i]) )
-        self.weights.append( np.random.rand(n_nodes[-1], n_outputs) )
+        self.weights = [np.random.rand(n_inputs, self.n_nodes[0])]
+        for i in range(1, len(self.n_nodes)):
+            self.weights.append( np.random.rand(self.n_nodes[i-1], self.n_nodes[i]) )
+        self.weights.append( np.random.rand(self.n_nodes[-1], self.n_outputs) )
 
     def train(self, puzzle, solution):
         """
@@ -55,14 +55,22 @@ class SolverNN:
         # TODO consider adding bias nodes later
         
         current_layer = puzzle
-        for layer in range(0, self.n_layers):
+        for layer in range(0, self.n_layers + 1):   # the +1 accounts for the output layer
             current_layer = self._activation( np.dot( current_layer, self.weights[layer] ))
 
         return current_layer        
 
     def _activation(self, layer):
         """Neuron activation function. Currently using sigmoid."""        
+        return self._relu(layer)
+
+    def _sigmoid(self, layer):
+        """Applies the sigmoid function to a numpy array."""
         return 1 / (1 + np.exp(-layer))
+
+    def _relu(self, value):
+        """Applies the ReLU function to the value provided (which can be a numpy array)."""
+        return (value > 0) * value
 
     def _error(self, output, solution):
         """Returns a measure of the output layer error for a given input-output combination."""

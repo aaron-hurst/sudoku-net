@@ -21,6 +21,11 @@ data_train, data_test = train_test_split(data, test_size=test_set_size)
 solver = SolverNN(sudoku_dim, sudoku_dim, n_nodes)
 
 # Train
+for puzzle in data.itertuples():
+    solution = solver.train(getattr(puzzle, 'quizzes'), getattr(puzzle, 'solutions'))
+    print(solution)
+    print(np.mean(solution))
+    print(len(solution))
 
 # Save solver state
 
